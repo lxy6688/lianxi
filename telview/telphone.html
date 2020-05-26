@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>Document</title>
+    <style>
+        body{text-align: center;}
+        #myTable{margin: auto;width:1200px;}
+        table,td,th{
+            border:1px solid #aaa;
+            font-size: 20px;
+            border-collapse:collapse;
+            border-spacing: 5px;
+            table-layout: fixed;
+            caption-side:top;
+        }
+    </style>
+</head>
+<body>
+<div id="div">
+    <table id="myTable" class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>设备</th>
+            <th>手机电话</th>
+            <th>项目标题</th>
+            <th>用户姓名</th>
+            <th>一级分类</th>
+            <th>二级分类</th>
+            <th>留言</th>
+            <th>日期</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+<script src="./jquery.min.js"></script>
+<script>
+    $(function() {
+        function Utils() {
+        }
+
+        Utils.loadListToTable = function (table_id, tr_template, arr_data, arr_params_name) {
+            var table = $(table_id);
+            var paramsLen = arr_params_name.length;//获取参数的长度
+            //移除已经存在的行
+            $(table_id + " tr:not(:first)").remove();
+
+            if (arr_data.length < 1) {
+                var non = '<tr rowspan="3"class="text-center"><td colspan="' + paramsLen + '" style="color: #9e9e9e57;">暂无数据</td></tr>'
+                $(table_id + " tbody:last").append(non);
+            }
+
+            for (var j = 0; j < arr_data.length; j++) {
+
+                var formatParams = {};
+                //构造参数
+                for (var i = 0; i < paramsLen; i++) {
+                    formatParams[arr_params_name[i]] = arr_data[j][arr_params_name[i]];
+                }
+
+                var row = tr_template.format(formatParams);
+                $(table_id + " tbody:last").append(row);
+            }
+        };
+
+        //格式化字符串，这个方法网上有很多例子 不懂自行百度吧
+        String.prototype.format = function (param) {
+            var reg = /{([^{}]+)}/gm;
+            return this.replace(reg, function (match, name) {
+                return param[name];
+            });
+        };
+
+        //行的模板 这里的目标表格列数为两列
+        var row_templ = '<tr><td>{ID}</td>' +
+            '<td>{device}</td>' +
+            '<td>{phone}</td>' +
+            '<td>{title}</td>' +
+            '<td>{name}</td>' +
+            '<td>{cate}</td>' +
+            '<td>{zcate}</td>' +
+            '<td>{message}</td>' +
+            '<td>{post_date}</td>' +
+            '</tr>';
+
+        //构造参数列表，方便格式化
+        var paramsName = ['ID','device','phone', 'title', 'name', 'cate', 'zcate', 'message', 'post_date'];
+        //需要注意 行模板{}中的值和paramsName里面的名需要对应，其实可以进一步封装------<
+
+        function loadData(){
+            $.ajax({
+                type: 'GET',
+                //url: 'http://192.168.62.128:8083/telview/dataphone.php',
+                url: 'https://007dir.cn/tel-view-pg0IrK104HSMDAfK/dataphone.php',
+                data: '',
+                dataType: 'json',
+                success: function (res, status, xhr) {
+                    if (res.code === 200) {
+                        $resData = res.data;
+                        //console.log($resData)
+                        //加载数据至表格
+                        Utils.loadListToTable('#myTable', row_templ, $resData, paramsName);
+                    }else{
+                        //没有数据
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        loadData()
+        //setInterval(loadData, 1800000);
+    })
+</script>
+</body>
+</html>
+
+
+

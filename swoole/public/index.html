@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+我是通过静态资源直接访问的
+</body>
+<script>
+    var wsServer = 'ws://192.168.136.134:9502';
+    var websocket = new WebSocket(wsServer);
+    websocket.onopen = function (evt) {
+        websocket.send('哈哈哈哈22');
+        console.log("Connected to WebSocket server.");
+    };
+
+    websocket.onclose = function (evt) {
+        console.log("Disconnected");
+    };
+
+    websocket.onmessage = function (evt) {
+        console.log('Retrieved data from server: ' + evt.data);
+        //websocket.send('哈哈哈哈');    //这句代码会无限次的给服务器发消息，服务器会无限次的响应这个消息
+    };
+
+    websocket.onerror = function (evt, e) {
+        console.log('Error occured: ' + evt.data);
+    };
+</script>
+</html>

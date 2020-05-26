@@ -1,0 +1,84 @@
+<!--ajax请求上传文件,并生成处理后的文件-->
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <style>
+     .load {
+        opacity: 0.2;
+     }
+  </style>
+ </head>
+ <body>
+  
+  <form id="uploadForm" enctype="multipart/form-data"> 
+             文件:	<input id="file" type="file" name="file"/> 
+  </form> 
+  <br>
+  每组数:  <input id="num_id" type="text" value="" />
+  <br>
+  <br>
+  <button id="upload">上传文件</button>
+  <br>
+  <br>
+  <button>
+    <!--<a id="load_button" href="http://47.103.116.147/LoadComb.php">下载文件</a>-->
+   <a id="load_button" href="javascript:return false;" class="load">下载文件</a>
+  </button>
+
+
+ </body>
+ <script src="./jquery.min.js"></script>
+ <script>
+	$(function () { 
+        $("#upload").click(function () {
+            var num_id = $("#num_id").val()
+            if(num_id == '' || num_id == 'undefined'){
+               alert("请输入每组数")
+               return false;
+            }
+
+            $("#upload").addClass("load")
+
+			var formData = new FormData();
+			formData.append("file",$("#file")[0].files[0]);
+            formData.append("num",num_id)
+            $.ajax({ 
+                type: 'post', 
+                url: "http://47.103.116.147/CombApply.php", //上传文件的请求路径必须是绝对路劲
+                data: formData, 
+                cache: false, 
+                processData: false, 
+                contentType: false, 
+				success:function(res){
+					if(res.code == 200){
+					    $("#load_button").attr('href',"http://47.103.116.147/LoadComb.php")
+                        $("#load_button").removeClass("load")
+
+                     $("#upload").removeClass("load")
+
+                        alert('上传处理成功!');
+                       // var arr = res.data
+                       // var length = arr.length
+                       // for(a=0;a<length;a++) {
+                       //    document.write(arr[a].join(',')+"<br/>")
+                       // }
+                    }else{
+					   alert(res.msg)
+                    }
+
+				},
+				error: function(data, status, e) {
+                    console.error(e);
+                }
+            })
+		}); 
+	}); 
+
+ </script>
+</html>

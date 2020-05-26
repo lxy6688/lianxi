@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>课程作业上传</title>
+    <style>
+        /*label{width: 80px;line-height:25px;}*/
+        form div{margin:15px}
+        /*div textarea {width:100px; height:80px;}*/
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+    </style>
+</head>
+<body>
+<form id="form">
+    <div>
+        <label>选择课件：</label>
+        <select id="bid" name="bid">
+            <!--<option value="1">第2册</option>-->
+        </select>
+
+        <select id="cid" name="cid">
+            <!--<option value="1">第1课</option>-->
+        </select>
+    </div>
+    <div>
+        <label>作业标题：</label>
+        <input type="text" id="name" name="name" placeholder="必填">
+    </div>
+    <div>
+        <label>第几天作业：</label>
+        <select id="dateNum" name="dateNum">
+            <option value="1">第1天</option>
+            <option value="2">第2天</option>
+            <option value="3">第3天</option>
+            <option value="4">第4天</option>
+        </select>
+    </div>
+
+    <div>
+        <label>选择年龄段：</label>
+        <select id="age" name="age">
+            <option value="1">4-6岁</option>
+            <option value="2">6-8岁</option>
+            <option value="3">8岁以上</option>
+        </select>
+    </div>
+
+    <div>
+        <label>作业简介：</label>
+        <textarea rows="3" cols="30" id="desc" name="desc"> </textarea>
+    </div>
+
+    <div>
+        <label>视频：</label>
+        <input type="file" name="file[]" value="">
+    </div>
+    <div>
+        <label>
+            <input type="button" id = "add_img_audio" class="input_add"  value="添加图片音频+">
+            <input type="button" id = "del_img_audio" class="input_del"  value="删除图片音频">
+        </label>
+        <ul id="ul_img_audio">
+            <li>
+                <div>
+                    <label>图片：</label>
+                    <input type="file" name="file[]" value="">
+                </div>
+                <div>
+                    <label>音频：</label>
+                    <input type="file" name="file[]" value="">
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+
+
+    <div><input type="button" id = "submit_test" class="input_submit" value="提交"></div>
+</form>
+
+</body>
+<script src="./jquery.min.js"></script>
+<script>
+    //var url = "http://192.168.62.129:8000"
+    var url = "http://39.105.149.114"
+
+    $("#submit_test").click(function(){
+        $("#submit_test").val("正在上传...")
+        $("#submit_test").attr({"disabled":"disabled"})
+        var formData = new FormData();
+
+        var bid = $("#bid option:selected").val()
+        var cid = $("#cid option:selected").val()
+        var name = $("#name").val()
+        var dateNum = $("#dateNum option:selected").val()
+        var age = $("#age option:selected").val()
+        var desc = $("#desc").val()
+
+        formData.append("bid",bid)
+        formData.append("cid",cid)
+        formData.append("name",name)
+        formData.append("dateNum",dateNum)
+        formData.append("age",age)
+        formData.append("desc",desc)
+
+        var filess=document.getElementsByName('file[]');
+        for(var i=0;i<filess.length;i++){
+            formData.append('file[]',filess[i].files[0]);
+        }
+
+        $.ajax({
+            //url:'http://39.105.149.114/admin/homework/addCourseHomeWork',
+            url:url+'/admin/homework/asyncAddCourseHomeWork',
+            dataType:'json',
+            type:'POST',
+            async: true,
+            data: formData,
+            processData : false, // 使数据不做处理
+            contentType : false, // 不要设置Content-Type请求头
+            success: function(data){
+                console.log(data);
+                if (data.code == 20000) {
+                    alert('上传成功！');
+
+                }else{
+                    alert(data.msg)
+                }
+                $("#submit_test").val("提交")
+                $("#submit_test").removeAttr("disabled")
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+    //动态添加图片、音频文本框
+    $("#add_img_audio").click(function(){
+        var html = "<li>\n" +
+            "                <div>\n" +
+            "                    <label>图片：</label>\n" +
+            "                    <input type=\"file\" name=\"file[]\" value=\"\">\n" +
+            "                </div>\n" +
+            "                <div>\n" +
+            "                    <label>音频：</label>\n" +
+            "                    <input type=\"file\" name=\"file[]\" value=\"\">\n" +
+            "                </div>\n" +
+            "            </li>"
+        $("#ul_img_audio").append(html)
+    })
+
+    //动态删除图片、音频文本框
+    $("#del_img_audio").click(function(){
+        $("#ul_img_audio>li").last().remove()
+    })
+
+    //添加册数据
+    $.ajax({
+        type: 'Get',
+        //url: 'http://39.105.149.114/admin/homework/getBooks',
+        url: url+'/admin/homework/getBooks',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+
+                $("#bid").append(option_html)
+                get_course_bybid()
+            }else{
+
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    function get_course_bybid(){
+        var bid = $("#bid option:selected").val()
+        $.ajax({
+            type: 'Get',
+            //url: 'http://39.105.149.114/admin/homework/getCourseByBook',
+            url: url+'/admin/homework/getCourseByBook',
+            data: {
+                bid: bid
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    var option_data = res.data
+
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+
+                    $("#cid").append(option_html)
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //根据册选择课程id
+    $("#bid").change(function(){
+        var bid = $("#bid option:selected").val()
+        $.ajax({
+            type: 'Get',
+            //url: 'http://39.105.149.114/admin/homework/getCourseByBook',
+            url: url+'/admin/homework/getCourseByBook',
+            data: {
+                bid: bid
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    var option_data = res.data
+
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+
+                    $("#cid").append(option_html)
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    })
+
+</script>
+</html>

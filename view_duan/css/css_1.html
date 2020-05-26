@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学习css布局一</title>
+    <style>
+        /*给div一个宽度, 然后水平居中, 但是浏览器窗口变小时，会出现滚动条*/
+        #main {
+            width: 600px;
+            margin: 0 auto;
+        }
+
+        /*给div一个最大宽度, 然后水平居中, 浏览器窗口变小时，不会出现滚动条*/
+        #max-main {
+            width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    设置块级元素的 width 可以防止它从左到右撑满整个容器。然后你就可以设置左右外边距为 auto 来使其水平居中。元素会占据你所指定的宽度，然后剩余的宽度会一分为二成为左右外边距。
+
+    唯一的问题是，当浏览器窗口比元素的宽度还要窄时，浏览器会显示一个水平滚动条来容纳页面。让我们再来改进下这个方案...
+</div>
+</body>
+</html>

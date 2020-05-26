@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>预习课程的标签语音上传</title>
+    <style>
+        /*label{width: 80px;line-height:25px;}*/
+        form div{margin:15px}
+        /*div textarea {width:100px; height:80px;}*/
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+    </style>
+</head>
+<body>
+<div>
+    <label>预习课程的标签语音上传：</label>
+</div>
+<br><br>
+
+<form id="form">
+    <div>
+        <label>选择课件：</label>
+        <select id="bid" name="bid">
+
+        </select>
+
+        <select id="cid" name="cid">
+
+        </select>
+    </div>
+
+    <div>
+        <label>选择标签：</label>
+        <select id="tag" name="tag">
+            <option value="知识">知识</option>
+            <option value="示范">示范</option>
+            <option value="技巧">技巧</option>
+        </select>
+    </div>
+
+    <div>
+        <label>语音音频：</label>
+        <input type="file" name="file[]" value="">
+    </div>
+
+    <div><input type="button" id = "submit_test" class="input_submit" value="提交"></div>
+</form>
+</body>
+<script src="./jquery.min.js"></script>
+<script>
+
+    //上传语音气泡
+    $("#submit_test").click(function(){
+        $("#submit_test").val("正在上传...")
+        $("#submit_test").attr({"disabled":"disabled"})
+        var formData = new FormData();
+
+        var cid = $("#cid option:selected").val()
+        var tag = $("#tag option:selected").val()
+
+        formData.append("cid",cid)
+        formData.append("tag",tag)
+
+        var filess=document.getElementsByName('file[]');
+        for(var i=0;i<filess.length;i++){
+            formData.append('file[]',filess[i].files[0]);
+        }
+
+        $.ajax({
+            url:'http://39.105.149.114/admin/course/addPreviewAudio',
+            dataType:'json',
+            type:'POST',
+            async: true,
+            data: formData,
+            processData : false, // 使数据不做处理
+            contentType : false, // 不要设置Content-Type请求头
+            success: function(data){
+                console.log(data);
+                if (data.code == 20000) {
+                    alert('上传成功！');
+
+                }else{
+                    alert(data.msg)
+                }
+                $("#submit_test").val("提交")
+                $("#submit_test").removeAttr("disabled")
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+    //查询册数据
+    $.ajax({
+        type: 'Get',
+        url: 'http://39.105.149.114/admin/homework/getBooks',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+
+                $("#bid").append(option_html)
+                get_course_bybid()
+            }else{
+
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    function get_course_bybid(){
+        var bid = $("#bid option:selected").val()
+        $.ajax({
+            type: 'Get',
+            url: 'http://39.105.149.114/admin/homework/getCourseByBook',
+            data: {
+                bid: bid
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    var option_data = res.data
+
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+
+                    $("#cid").append(option_html)
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    //根据册选择课程id
+    $("#bid").change(function(){
+        var bid = $("#bid option:selected").val()
+        $.ajax({
+            type: 'Get',
+            url: 'http://39.105.149.114/admin/homework/getCourseByBook',
+            data: {
+                bid: bid
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    var option_data = res.data
+
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+
+                    $("#cid").append(option_html)
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    })
+
+
+</script>
+</html>

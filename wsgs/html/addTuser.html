@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>添加老师用户</title>
+    <style>
+        form div{margin:15px}
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+    </style>
+</head>
+<body>
+<form id="form">
+    <div>添加老师用户</div>
+    <div>
+        <label>昵称：</label>
+        <input type="text" id="name" name="name" value="">
+    </div>
+    <div>
+        <label>Login：</label>
+        <input type="text" id="login" name="login" value="">
+    </div>
+    <div>
+        <label>pwd：</label>
+        <input type="password" id="pwd" name="pwd" value="">
+    </div>
+
+    <div><input type="button" id = "submit_addTuser" class="input_submit" value="提交"></div>
+</form>
+
+<br>
+<form id="tmp_form">
+    <div>添加试听用户</div>
+    <div>
+        <label>昵称：</label>
+        <input type="text" id="tmp_name" name="tmp_name" value="">
+    </div>
+    <div>
+        <label>Login：</label>
+        <input type="text" id="tmp_login" name="tmp_login" value="">
+    </div>
+    <div>
+        <label>pwd：</label>
+        <input type="password" id="tmp_pwd" name="tmp_pwd" value="">
+    </div>
+
+    <div><input type="button" id = "submit_tmp_user" class="input_submit" value="提交"></div>
+</form>
+</body>
+<script src="./jquery.min.js"></script>
+<script>
+    $("#submit_addTuser").click(function(){
+        var name = $("#name").val()
+        var login = $("#login").val()
+        var pwd = $("#pwd").val()
+
+        $.ajax({
+            url:'http://39.105.149.114/admin/user/addTuser',
+            dataType:'json',
+            type:'POST',
+            //async: true,
+            data: {
+            	login: login,
+                name: name,
+            	pwd: pwd
+            },
+            success: function(data){
+                console.log(data);
+                if (data.code == 20000) {
+                    alert('上传成功！'+ data.data);
+
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+    //添加试听账号
+    $("#submit_tmp_user").click(function(){
+        var name = $("#tmp_name").val()
+        var login = $("#tmp_login").val()
+        var pwd = $("#tmp_pwd").val()
+
+        $.ajax({
+            url:'http://39.105.149.114/admin/user/addTempuser',
+            dataType:'json',
+            type:'POST',
+            //async: true,
+            data: {
+                login: login,
+                name: name,
+                pwd: pwd
+            },
+            success: function(data){
+                console.log(data);
+                if (data.code == 20000) {
+                    alert('上传成功！'+ data.data);
+
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+</script>
+</html>

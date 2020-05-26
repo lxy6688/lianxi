@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>添加学生用户</title>
+    <style>
+        form div{margin:15px}
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+    </style>
+</head>
+<body>
+<form id="form">
+    <div>
+        <label>选择老师：</label>
+        <select id="tid" name="tid">
+            <option value="">暂不选择老师</option>
+        </select>
+    </div>
+    <div>
+        <label>选择机构：</label>
+        <select id="oid" name="oid">
+            <option value="">暂不选择机构</option>
+        </select>
+
+        <input type="text" id="new_organ" name="new_organ" placeholder="新机构名称">
+        <input type="button" id = "add_organ" class="input_submit" value="新加机构">
+    </div>
+
+
+    <div>
+        <label>昵称：</label>
+        <input type="text" id="name" name="name">
+    </div>
+
+    <div>
+        <label>Login：</label>
+        <input type="text" id="login" name="login" placeholder="必填">
+    </div>
+
+    <div>
+        <label>pwd：</label>
+        <input type="password" id="pwd" name="pwd" placeholder="必填">
+    </div>
+
+    <div><input type="button" id = "add_suser" class="input_submit" value="提交"></div>
+</form>
+</body>
+<script src="./jquery.min.js"></script>
+<script>
+    //添加老师数据
+    $.ajax({
+        type: 'get',
+        url: 'http://39.105.149.114/admin/user/getTeachers',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+                $("#tid").append(option_html)
+            }else{
+                alert(res.msg)
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    //添加机构数据
+    $.ajax({
+        type: 'get',
+        url: 'http://39.105.149.114/admin/user/getOrgans',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+                $("#oid").append(option_html)
+            }else{
+                alert(res.msg)
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    //刷新机构信息
+    function flush_organ(){
+        $.ajax({
+            type: 'get',
+            url: 'http://39.105.149.114/admin/user/getOrgans',
+            data: {
+
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    $("#oid").empty()
+                    $("#oid").append("<option value=''>暂不选择老师</option>")
+
+                    var option_data = res.data
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+                    $("#oid").append(option_html)
+                }else{
+                    alert(res.msg)
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    //add 新机构
+    $("#add_organ").click(function () {
+        var organ_name = $("#new_organ").val()
+        $.ajax({
+            url:'http://39.105.149.114/admin/user/addOrgan',
+            dataType:'json',
+            type:'POST',
+            //async: true,
+            data: {
+                name: organ_name
+            },
+            success: function(data){
+                if (data.code == 20000) {
+                    flush_organ()
+                    //alert('上传成功！'+ data.data);
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+    //add new student-user
+    $("#add_suser").click(function () {
+        var name = $("#name").val()
+        var pwd = $("#pwd").val()
+        var login = $("#login").val()
+
+        var tid = $("#tid option:selected").val()
+        var organ_id = $("#oid option:selected").val()
+        var organ_name = $("#oid option:selected").text()
+
+        $.ajax({
+            url:'http://39.105.149.114/admin/user/addSuser',
+            dataType:'json',
+            type:'POST',
+            //async: true,
+            data: {
+                name: name,
+                pwd:  pwd,
+                login: login,
+                tid: tid,
+                organ_id: organ_id,
+                organ_name: organ_name
+            },
+            success: function(data){
+                if (data.code == 20000) {
+                    alert('上传成功！'+ data.data);
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+
+
+</script>
+</html>

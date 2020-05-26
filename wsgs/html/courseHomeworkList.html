@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>课程作业上传</title>
+    <style>
+        /*label{width: 80px;line-height:25px;}*/
+        form div{margin:15px}
+        /*div textarea {width:100px; height:80px;}*/
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+
+        .list>.table-title>span {margin-right:30px;}
+
+        table.dataTable.no-footer{
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="./datatables.min.css"/>
+</head>
+<body>
+
+<div class="list">
+    <div>
+        <label>课程列表</label>
+    </div>
+    <div class="table-title">
+        <span>
+            <label>选择课件：</label>
+            <select id="search_bid" name="search_bid">
+
+            </select>
+
+            <select id="search_cid" name="search_cid">
+
+            </select>
+        </span>
+        <span>
+            <label>第几天作业：</label>
+            <select id="search_dateNum" name="search_dateNum">
+                <option value="">全部</option>
+                <option value="1">第1天</option>
+                <option value="2">第2天</option>
+                <option value="3">第3天</option>
+                <option value="4">第4天</option>
+            </select>
+        </span>
+        <span>
+            <label>选择年龄段：</label>
+            <select id="search_age" name="search_age">
+                <option value="">全部</option>
+                <option value="1">4-6岁</option>
+                <option value="2">6-8岁</option>
+                <option value="3">8岁以上</option>
+            </select>
+        </span>
+
+        <span>
+            <input type="button" id = "search_list" class="input_submit" value="搜索">
+        </span>
+
+        <span>
+            <input type="button" id = "add_course_hk" class="input_submit" value="添加课件作业">
+        </span>
+    </div>
+
+    <div class="table-content">
+        <table id="table_id_example">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>册</th>
+                <th>课程</th>
+                <th>作业标题</th>
+                <th>作业描述</th>
+                <th>年龄段</th>
+                <th>第几天作业</th>
+                <th>上传时间</th>
+                <th>修改时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+
+</div>
+</body>
+<script src="./jquery.min.js"></script>
+<script type="text/javascript" src="./datatables.min.js"></script>
+<script src="./jquery.params.js"></script>
+<script>
+    //var url = "http://192.168.62.129:8000"
+    var url = "http://39.105.149.114"
+
+    //查询册数据
+    $.ajax({
+        type: 'Get',
+        //url: 'http://39.105.149.114/admin/homework/getBooks',
+        url: url+'/admin/homework/getBooks',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+                $("#search_bid").append(option_html)  //list search
+                get_course_bybid()
+            }else{
+
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    function get_course_bybid(){
+        var bid = $("#search_bid option:selected").val()
+        $.ajax({
+            type: 'Get',
+            //url: 'http://39.105.149.114/admin/homework/getCourseByBook',
+            url: url+'/admin/homework/getCourseByBook',
+            data: {
+                bid: bid
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    var option_data = res.data
+
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+                    $("#search_cid").append(option_html)   //list search
+
+                    flushCourseHkList()  //默认显示当前课程下的所有作业
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    //$('#table_id_example').DataTable();
+    $("#search_list").click(function(){
+        flushCourseHkList()
+    })
+    //刷新查看课程作业列表
+    function flushCourseHkList(){
+        var search_bid = $("#search_bid option:selected").val()
+        var search_cid = $("#search_cid option:selected").val()
+        var search_age = $("#search_age option:selected").val()
+        var search_dateNum = $("#search_dateNum option:selected").val()
+
+        $.ajax({
+            type: 'Get',
+            //url: 'http://39.105.149.114/admin/homework/getCourseHKlist',
+            url: url+'/admin/homework/getCourseHKlist',
+            data: {
+                bid: search_bid,
+                cid: search_cid,
+                dateNum: search_dateNum,
+                age: search_age
+            },
+            dataType: 'json',
+            success: function (res) {
+                //var res = JSON.parse(res);
+                console.log(res)
+                if (res.code === 20000) {
+                    var data = res.data
+                    $("#table_id_example").DataTable({
+                        searching:false,
+                        bLengthChange: false,
+                        bFilter: false,
+                        paging: false,
+                        ordering: false,
+                        info: false,
+                        //retrieve: true,
+                        destroy:true,
+                        processing:true,
+                        "dom": '<"top"i>rt<"bottom"flp><"clear">',
+
+                        data:data,
+                        columns:[
+                            {data:'id'},
+                            {data:'bName'},
+                            {data:'cName'},
+                            {data:'name'},
+                            {data:'desc'},
+                            {data:'age_range'},
+                            {data:'date_num'},
+                            {data:'create_time'},
+                            {data:'update_time'},
+                            // {data:null,"render":function(data,type,row,meta){
+                            //     var html = "<button onclick='del("+row.id+")'>删除</button> "+
+                            //     "&nbsp;&nbsp;<button onclick=\"update('"+row.name+"','"+row.desc+"',"+row.id+",'"+row.age_range+"',"+row.date_num+")\">修改</button>"
+                            //     return html;
+                            // }}
+                            {data:null,"render":function(data,type,row,meta){
+                                    var html = "<button onclick='del("+row.id+")'>删除</button> "+
+                                        "&nbsp;&nbsp;<button onclick=\"update("+row.id+")\">修改</button>"
+                                    return html;
+                                }}
+                        ],
+
+                    });
+
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+
+    }
+
+    //查询列表模块根据册选择课程id
+    $("#search_bid").change(function(){
+        var search_bid = $("#search_bid option:selected").val()
+        $.ajax({
+            type: 'Get',
+            //url: 'http://39.105.149.114/admin/homework/getCourseByBook',
+            url: url+'/admin/homework/getCourseByBook',
+            data: {
+                bid: search_bid
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    var option_data = res.data
+
+                    var option_html = ''
+                    $.each(option_data,function(i,obj){
+                        option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                    })
+
+
+                    $("#search_cid").append(option_html)
+                }else{
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    })
+
+    $("#add_course_hk").click(function()  {
+        window.location.href="./uploadCourseHomework.html"
+    })
+
+    //修改课程作业
+    function update(id){
+        //var url = "updateCourseHk.html?name="+name+"&age="+age+"&id="+id+"&bName="+bName+"&cName="+cName+"&dateNum="+dateNum+"&desc="+desc;
+        var url = "updateCourseHk.html?id="+id
+        window.location.href=url;
+    }
+
+    //删除课件作业
+    function del(id) {
+        alert(id)
+        $.ajax({
+            type: 'post',
+            //url: 'http://39.105.149.114/admin/homework/delCourseHK',
+            url: url+'/admin/homework/delCourseHK',
+            data: {
+                id: id
+            },
+            dataType: 'json',
+            success: function (res, status, xhr) {
+                console.log(res)
+                if (res.code === 20000) {
+                    alert("删除成功")
+                    flushCourseHkList()
+                }else{
+                    alert(res.msg)
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+</script>
+</html>

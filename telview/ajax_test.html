@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+  
+ </body>
+ <script src="./jquery.min.js"></script>
+ <script>
+	$.ajax({
+			type: 'POST',
+			//url: 'http://192.168.62.129/ajax-test.php',
+            //url: 'http://192.168.62.129:8089/wp-admin/admin-ajax.php',
+			url: 'https://m.007dir.cn/wp-admin/admin-ajax.php',
+			//contentType: 'application/json',
+            data: {
+			//	id: 267,
+				id: 71784,
+				action:'get_ajax_small_programs',
+            },
+
+			//data: JSON.stringify({id:267,action:'aaa'}),
+            dataType: 'json',
+            success: function (res, status, xhr) {
+				alert(res)
+				console.log(res)
+                if (res.code === 200) {
+                   
+                }else{
+                   
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+     });
+
+ </script>
+</html>

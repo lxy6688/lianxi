@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>老师和学生的关联</title>
+    <style>
+        form div{margin:15px}
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+    </style>
+</head>
+<body>
+<form id="form">
+    <div>
+        <label>选择老师：</label>
+        <select id="tid" name="tid">
+
+        </select>
+    </div>
+    <div>
+        <label>选择学生：</label>
+        <select id="sid" name="sid">
+            <option value="">没有未关联的学生</option>
+        </select>
+    </div>
+
+    <div><input type="button" id = "add_rela" class="input_submit" value="提交关联"></div>
+</form>
+</body>
+<script src="./jquery.min.js"></script>
+<script>
+    //获取老师数据
+    $.ajax({
+        type: 'get',
+        //url: 'http://192.168.62.129:8000/admin/user/getTeachers',
+        url: 'http://39.105.149.114/admin/user/getTeachers',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+                $("#tid").append(option_html)
+            }else{
+                alert(res.msg)
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    //获取未关联的学生数据
+    $.ajax({
+        type: 'get',
+        url: 'http://39.105.149.114/admin/user/getUnrelaStudents',
+        data: {
+
+        },
+        dataType: 'json',
+        success: function (res, status, xhr) {
+            console.log(res)
+            if (res.code === 20000) {
+                var option_data = res.data
+
+                var option_html = ''
+                $.each(option_data,function(i,obj){
+                    option_html += "<option value='"+ obj.id +"'>" + obj.name + "</option>"
+                })
+
+                $("#sid").empty()
+                $("#sid").append(option_html)
+            }else{
+                //alert(res.msg)
+            }
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+        }
+    });
+
+    //add user rela
+    $("#add_rela").click(function () {
+        var tid = $("#tid option:selected").val()
+        var sid = $("#sid option:selected").val()
+
+        $.ajax({
+            url:'http://39.105.149.114/admin/user/addUserRela',
+            dataType:'json',
+            type:'POST',
+            //async: true,
+            data: {
+                tid: tid,
+                sid: sid
+            },
+            success: function(data){
+                if (data.code == 20000) {
+                    alert('关联成功！'+ data.data);
+                }else{
+                    alert(data.msg)
+                }
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+
+
+</script>
+</html>

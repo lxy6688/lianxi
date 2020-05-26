@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Generator" content="EditPlus®">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>课程作业上传</title>
+    <style>
+        /*label{width: 80px;line-height:25px;}*/
+        form div{margin:15px}
+        /*div textarea {width:100px; height:80px;}*/
+        li {background-color: #c2c2c2}
+        .input_add {background-color: #50e269;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_del {background-color: #ff9900;width:100px;height: 30px;color:#ffffff;margin-right:20px;}
+        .input_submit{background-color: #3366ff;width:100px;height: 30px;color:#ffffff}
+    </style>
+</head>
+<body>
+<form id="form">
+
+    <div>
+        <label>视频：</label>
+        <input type="file" name="file[]" value="">
+    </div>
+    <div>
+        <label>
+            <input type="button" id = "add_img_audio" class="input_add"  value="添加图片音频+">
+            <input type="button" id = "del_img_audio" class="input_del"  value="删除图片音频">
+        </label>
+        <ul id="ul_img_audio">
+            <li>
+                <div>
+                    <label>音频：</label>
+                    <input type="file" name="file[]" value="">
+                </div>
+                <div>
+                    <label>图片：</label>
+                    <input type="file" name="file[]" value="">
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+
+
+    <div><input type="button" id = "submit_test" class="input_submit" value="提交"></div>
+</form>
+</body>
+<script src="./jquery.min.js"></script>
+<script>
+    $("#submit_test").click(function(){
+        $("#submit_test").val("正在上传...")
+        $("#submit_test").attr({"disabled":"disabled"})
+        var formData = new FormData();
+
+        var bid = $("#bid option:selected").val()
+        var cid = $("#cid option:selected").val()
+        var name = $("#name").val()
+        var dateNum = $("#dateNum option:selected").val()
+        var desc = $("#desc").val()
+
+        formData.append("bid",bid)
+        formData.append("cid",cid)
+        formData.append("name",name)
+        formData.append("dateNum",dateNum)
+        formData.append("desc",desc)
+
+        var filess=document.getElementsByName('file[]');
+        for(var i=0;i<filess.length;i++){
+            formData.append('file[]',filess[i].files[0]);
+        }
+
+        $.ajax({
+            //url:'http://39.105.149.114/admin/homework/addCourseHomeWork',
+            url:'http://192.168.62.129:8000/api/upload/homework',
+            dataType:'json',
+            type:'POST',
+            async: true,
+            data: formData,
+            processData : false, // 使数据不做处理
+            contentType : false, // 使数据不做处理
+            success: function(data){
+                console.log(data);
+                if (data.code == 20000) {
+                    alert('上传成功！');
+
+                }else{
+                    alert(data.msg)
+                }
+                $("#submit_test").val("提交")
+                $("#submit_test").removeAttr("disabled")
+            },
+            error:function(response){
+                console.log(response);
+            }
+        });
+    })
+
+
+
+</script>
+</html>
